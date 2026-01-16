@@ -66,7 +66,7 @@ const FlavorTitle = () => {
   return (
     <div
       ref={containerRef}
-      className="flex flex-col items-center lg:items-start justify-center gap-4 lg:gap-8 h-full py-10 lg:pl-20"
+      className="flex flex-col items-center lg:items-center justify-center gap-4 lg:gap-8 h-full py-10 lg:pl-20"
     >
       {/* 1. "Check out our" */}
       <div className="overflow-hidden">

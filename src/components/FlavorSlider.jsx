@@ -1,6 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const flavors = [
   {
@@ -47,29 +50,43 @@ const flavors = [
   },
 ];
 
-const FlavorSlider = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+const FlavorSlider = ({ activeFlavorIndex = 0, onFlavorChange }) => {
+  // Local display state (may differ briefly from prop during animation)
+  const [displayedIndex, setDisplayedIndex] = useState(activeFlavorIndex);
+
+  // Refs
+  const isAnimatingRef = useRef(false);
   const containerRef = useRef(null);
-  const bgRef = useRef(null);
   const imageRef = useRef(null);
   const titleRef = useRef(null);
   const circleRef = useRef(null);
 
+  // Initial Entrance
   useGSAP(
     () => {
-      // Initial entrance
       gsap.from(containerRef.current, { opacity: 0, duration: 1 });
     },
     { scope: containerRef }
   );
 
-  const handleFlavorChange = (index) => {
-    if (index === activeIndex) return;
+  // Sync with prop changes (e.g. from ScrollTrigger)
+  useEffect(() => {
+    if (activeFlavorIndex !== displayedIndex && !isAnimatingRef.current) {
+      animateTransition(activeFlavorIndex);
+    }
+  }, [activeFlavorIndex]);
 
-    const newFlavor = flavors[index];
-    const tl = gsap.timeline();
+  const animateTransition = (newIndex) => {
+    if (newIndex === displayedIndex || isAnimatingRef.current) return;
 
-    // 1. Animate OUT old content
+    isAnimatingRef.current = true;
+    const tl = gsap.timeline({
+      onComplete: () => {
+        isAnimatingRef.current = false;
+      },
+    });
+
+    // 1. Out
     tl.to(imageRef.current, {
       opacity: 0,
       y: -20,
@@ -80,12 +97,12 @@ const FlavorSlider = () => {
       .to(titleRef.current, { opacity: 0, x: -50, duration: 0.2 }, "<")
       .to(circleRef.current, { scale: 0, duration: 0.3 }, "<");
 
-    // 2. Change State (Colors/Images) - Using call to sync with animation
+    // 2. Swap Data
     tl.call(() => {
-      setActiveIndex(index);
+      setDisplayedIndex(newIndex);
     });
 
-    // 3. Animate IN new content
+    // 3. In
     tl.to(imageRef.current, {
       opacity: 1,
       y: 0,
@@ -97,76 +114,85 @@ const FlavorSlider = () => {
       .to(circleRef.current, { scale: 1, duration: 0.5 }, "-=0.4");
   };
 
+  const handleManualClick = (index) => {
+    // If parent provided handler, use it. Otherwise loopback to local animation.
+    if (onFlavorChange) {
+      onFlavorChange(index);
+    } else {
+      animateTransition(index);
+    }
+  };
+
+  // Safe data access
+  const currentFlavor = flavors[displayedIndex] || flavors[0];
+
   return (
     <div
       ref={containerRef}
       className="w-full h-full flex flex-col md:flex-row items-center justify-center p-4"
     >
-      {/* Active Flavor Display area */}
+      {/* Active Flavor Display */}
       <div
-        className="relative w-full md:w-[600px] h-[500px] rounded-[3rem] overflow-hidden shadow-2xl transition-colors duration-700 ease-in-out flex items-center justify-center"
-        style={{ backgroundColor: flavors[activeIndex].bg }}
+        className="relative w-full md:w-[600px] h-[500px] rounded-[3rem] overflow-hidden shadow-2xl flex items-center justify-center"
+        style={{ backgroundColor: currentFlavor.bg }}
       >
-        {/* Decorative Circle behind */}
         <div
           ref={circleRef}
           className="absolute w-[300px] h-[300px] rounded-full opacity-30 blur-2xl"
-          style={{ backgroundColor: flavors[activeIndex].accent }}
+          style={{ backgroundColor: currentFlavor.accent }}
         />
 
         <div className="relative z-10 flex flex-col items-center">
           <img
             ref={imageRef}
-            src={flavors[activeIndex].img}
-            alt={flavors[activeIndex].color}
+            src={currentFlavor.img}
             className="w-64 h-64 object-contain drop-shadow-xl"
+            draggable="false"
           />
           <div ref={titleRef} className="mt-8 text-center">
             <h3
               className="text-4xl font-extrabold uppercase tracking-tighter"
-              style={{ color: flavors[activeIndex].accent }}
+              style={{ color: currentFlavor.accent }}
             >
-              {flavors[activeIndex].desc}
+              {currentFlavor.desc}
             </h3>
             <p
               className="font-bold opacity-60 uppercase tracking-widest mt-2"
-              style={{ color: flavors[activeIndex].accent }}
+              style={{ color: currentFlavor.accent }}
             >
-              {flavors[activeIndex].color} Edition
+              {currentFlavor.color} Edition
             </p>
           </div>
         </div>
 
-        {/* Pagination / Controls inside card */}
+        {/* Pagination Dots */}
         <div className="absolute bottom-6 left-0 w-full flex justify-center gap-3 z-20">
-          {flavors.map((f, i) => (
+          {flavors.map((_, i) => (
             <button
-              key={f.color}
-              onClick={() => handleFlavorChange(i)}
-              className={`w-4 h-4 rounded-full transition-all duration-300 border-2 border-white/50 ${
-                i === activeIndex
-                  ? "w-10 bg-white"
-                  : "bg-transparent hover:bg-white/50"
+              key={i}
+              onClick={() => handleManualClick(i)}
+              className={`w-4 h-4 rounded-full transition-all border-2 border-white/50 ${
+                i === displayedIndex ? "w-10 bg-white" : "hover:bg-white/50"
               }`}
             />
           ))}
         </div>
       </div>
 
-      {/* Small List Selector on Right (Desktop) or Bottom (Mobile) */}
-      <div className="md:ml-8 mt-8 md:mt-0 flex md:flex-col gap-4 overflow-x-auto md:overflow-visible w-full md:w-auto pb-4 md:pb-0 scrollbar-hide">
+      {/* Side Selector */}
+      <div className="mt-6 md:mt-0 flex md:flex-col gap-3 md:gap-4 md:ml-8 overflow-x-auto md:overflow-visible px-2 md:px-0">
         {flavors.map((f, i) => (
           <div
             key={f.color}
-            onClick={() => handleFlavorChange(i)}
-            className={`cursor-pointer group flex items-center gap-4 p-2 rounded-xl transition-all duration-300 ${
-              i === activeIndex
+            onClick={() => handleManualClick(i)}
+            className={`cursor-pointer flex items-center gap-2 md:gap-4 p-2 rounded-xl transition-all ${
+              i === displayedIndex
                 ? "bg-white/80 shadow-md scale-105"
-                : "hover:scale-105 opacity-60 hover:opacity-100"
+                : "opacity-60 hover:opacity-100 hover:scale-105"
             }`}
           >
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center p-2"
+              className="md:w-12 md:h-12 w-10 h-10 rounded-full flex items-center justify-center"
               style={{ backgroundColor: f.bg }}
             >
               <img src={f.img} className="w-full h-full object-contain" />

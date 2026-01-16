@@ -147,7 +147,7 @@ const Hero = () => {
         onMouseEnter={handleTitleEnter}
         onMouseLeave={handleTitleLeave}
         className="
-          absolute font-extrabold text-center leading-none z-20 select-none
+          absolute font-extrabold text-center font-Play leading-none z-20 select-none
           text-[5rem]
           sm:text-[6rem]
           md:text-[6.5rem]

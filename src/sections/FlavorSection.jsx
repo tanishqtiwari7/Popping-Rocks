@@ -4,15 +4,18 @@ import FlavorSlider from "../components/FlavorSlider";
 
 const FlavorSection = () => {
   return (
-    <section className="flavor-section relative w-full min-h-screen bg-[#FFF8F0] overflow-hidden">
-      <div className="container mx-auto h-full flex flex-col items-center justify-center py-20 relative">
-        {/* Title Area */}
-        <div className="w-full mb-10">
+    <section className="relative w-full min-h-screen bg-[#FFF8F0] overflow-hidden">
+      <div
+        className="
+          container mx-auto h-full flex flex-col lg:flex-row items-center  justify-center gap-12 lg:gap-10 py-20"
+      >
+        {/* LEFT: Title */}
+        <div className="w-full lg:w-1/2 flex justify-center lg:justify-center">
           <FlavorTitle />
         </div>
 
-        {/* Slider Area */}
-        <div className="w-full flex-1 flex items-center justify-center min-h-[600px]">
+        {/* RIGHT: Slider */}
+        <div className="w-full lg:w-1/2 flex justify-center">
           <FlavorSlider />
         </div>
       </div>

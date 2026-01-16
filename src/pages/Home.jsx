@@ -2,6 +2,7 @@ import Hero from "../sections/Hero";
 import QuoteSection from "../sections/QuoteSection";
 import ProductSection from "../sections/ProductSection";
 import FlavorSection from "../sections/FlavorSection";
+import FooterSection from "../sections/FooterSection";
 
 const Home = () => {
   return (
@@ -10,6 +11,7 @@ const Home = () => {
       <QuoteSection />
       <ProductSection />
       <FlavorSection />
+      <FooterSection />
     </div>
   );
 };

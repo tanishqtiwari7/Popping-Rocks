@@ -73,7 +73,7 @@ const ProductSection = () => {
       {/* Main content */}
       <div className="container mx-auto px-6 flex-1 flex flex-col md:flex-row items-center gap-16 relative z-20">
         {/* Text */}
-        <div className="flex-1 text-center md:text-left product-reveal md:ml-15">
+        <div className="flex-1 text-center md:text-left product-reveal md:ml-20">
           <h2 className="text-[#6B1F14] text-5xl md:text-7xl font-black leading-[0.95] mb-6">
             TASTE
             <br />
@@ -95,7 +95,7 @@ const ProductSection = () => {
             <img
               src="/candy_packet.png"
               alt="Candy Packet"
-              className="w-[250px] md:w-[300px] object-contain drop-shadow-[0_25px_45px_rgba(0,0,0,0.2)] "
+              className="w-[250px] md:w-[320px] object-contain drop-shadow-[0_25px_45px_rgba(0,0,0,0.2)] "
             />
           </div>
         </div>
