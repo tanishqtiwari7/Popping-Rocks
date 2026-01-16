@@ -13,8 +13,7 @@ function App() {
   useGSAP(() => {
     // Initialize smoother immediately so content is ready behind loader
     ScrollSmoother.create({
-      smooth: 3,
-      ease: "power3.inOut",
+      smooth: 2,
       effects: true,
     });
   }, []);
